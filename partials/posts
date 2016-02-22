@@ -1,0 +1,9 @@
+<div class="column">
+  <h4><a href="archive.html">Blog</a></h4>
+  <div onclick="document.location.href=&quot;/blog/2015-12-08-joint-x-road-community-focus.html&quot;" class="card">
+    <div class="card-header"><b>Taija Björklund</b><small>08.12.2015</small></div>
+    <div class="card-content">
+      <p>Community focus</p><img src="/images/Joint%20X-Road%20Community.png"/>
+    </div>
+  </div>
+</div>
