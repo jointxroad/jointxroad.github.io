@@ -54,15 +54,272 @@
       <div class="row">
         <aside class="column">
           <ul class="read-more">
-            <li><a href="#overview">1. Overview</a></li>
-            <li><a href="#security-server-installation">2. Security Server Installation</a></li>
-            <li><a href="#documents-and-links">3. Documentation and links</a></li>
+            <li><a href="#general">1. General</a></li>
+            <li><a href="#java">2. Pabui</a></li>
+            <li><a href="#javascript">3. Javascript</a></li>
           </ul>
         </aside>
         <div class="column column-75 main-content">
           <h1 id="examples">Examples</h1>
 
-<p>This section is coming up soon</p>
+<h2 id="general">General</h2>
+
+<p>X-road uses SOAP version 1.1 messaging. When calling a service you need to make sure both SOAP header and body fields are properly filled, otherwise the call wont work. Note that some of the WSDL autogenerators/General SOAP client libraries don&#39;t seem to cope with the headers very well.</p>
+
+<p>To get quickly started with development/testing you don&#39;t need to have full security server installation. Instead you can just run <a href="https://github.com/petkivim/x-road-test-service">X-Road Test Service</a> locally and try your client code against it.</p>
+
+<h2 id="java">JAVA</h2>
+
+<h3 id="jax-ws">JAX-WS</h3>
+
+<p>In this example we call <a href="https://github.com/petkivim/x-road-test-service">X-Road Test Service</a> using JAX-WS dynamic invocation.</p>
+
+<pre><code class="java">import javax.xml.namespace.QName;
+import javax.xml.soap.*;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
+...
+...
+QName SERVICE_NAME = new QName(&quot;http://test.x-road.fi/producer&quot;, &quot;testService&quot;);
+QName SERVICE_PORT = new QName(&quot;http://test.x-road.fi/producer&quot;, &quot;testServicePort&quot;);
+
+String url = &quot;http://localhost:8080/example-adapter-0.0.4-SNAPSHOT/Endpoint?wsdl&quot;;
+
+/** Create a service and add at least one port to it. **/
+Service service = Service.create(SERVICE_NAME);
+service.addPort(SERVICE_PORT, SOAPBinding.SOAP11HTTP_BINDING, url);
+
+/** Create a Dispatch instance from a service.**/
+Dispatch&lt;SOAPMessage&gt; dispatch = service.createDispatch(SERVICE_PORT, SOAPMessage.class, Service.Mode.MESSAGE);
+
+/** Create SOAPMessage request. **/
+// compose a request message
+MessageFactory mf = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+
+// Create a message.  This example works with the SOAPPART.
+SOAPMessage request = mf.createMessage();
+SOAPPart part = request.getSOAPPart();
+
+// Obtain the SOAPEnvelope and header and body elements.
+SOAPEnvelope env = part.getEnvelope();
+SOAPHeader header = env.getHeader();
+SOAPBody body = env.getBody();
+
+env.addNamespaceDeclaration(&quot;id&quot;, &quot;http://x-road.eu/xsd/identifiers&quot;);
+env.addNamespaceDeclaration(&quot;xrd&quot;, &quot;http://x-road.eu/xsd/xroad.xsd&quot;);
+
+// Start by defining client soap header
+SOAPElement clientHeader = header.addChildElement(&quot;client&quot;, &quot;xrd&quot;);
+clientHeader.addAttribute(env.createQName(&quot;objectType&quot;, &quot;id&quot;), &quot;SUBSYSTEM&quot;);
+
+SOAPElement sdsbInstance = clientHeader.addChildElement(&quot;xRoadInstance&quot;, &quot;id&quot;);
+sdsbInstance.addTextNode(&quot;FI_TEST&quot;);
+
+SOAPElement memberClass = clientHeader.addChildElement(&quot;memberClass&quot;, &quot;id&quot;);
+memberClass.addTextNode(&quot;GOV&quot;);
+
+SOAPElement memberCode = clientHeader.addChildElement(&quot;memberCode&quot;, &quot;id&quot;);
+memberCode.addTextNode(&quot;1234567-8&quot;);
+
+SOAPElement subsystem = clientHeader.addChildElement(&quot;subsystemCode&quot;, &quot;id&quot;);
+subsystem.addTextNode(&quot;TestClient&quot;);
+
+
+// Service soap header
+SOAPElement serviceHeader = header.addChildElement(&quot;service&quot;, &quot;xrd&quot;);
+serviceHeader.addAttribute(env.createQName(&quot;objectType&quot;, &quot;id&quot;), &quot;SERVICE&quot;);
+
+sdsbInstance = serviceHeader.addChildElement(&quot;xRoadInstance&quot;, &quot;id&quot;);
+sdsbInstance.addTextNode(&quot;FI_TEST&quot;);
+
+memberClass = serviceHeader.addChildElement(&quot;memberClass&quot;, &quot;id&quot;);
+memberClass.addTextNode(&quot;GOV&quot;);
+
+memberCode = serviceHeader.addChildElement(&quot;memberCode&quot;, &quot;id&quot;);
+memberCode.addTextNode(&quot;1234567-8&quot;);
+
+subsystem = serviceHeader.addChildElement(&quot;subsystemCode&quot;, &quot;id&quot;);
+subsystem.addTextNode(&quot;DemoService&quot;);
+
+SOAPElement serviceCode = serviceHeader.addChildElement(&quot;serviceCode&quot;, &quot;id&quot;);
+serviceCode.addTextNode(&quot;helloService&quot;);
+
+SOAPElement serviceVersion = serviceHeader.addChildElement(&quot;serviceVersion&quot;, &quot;id&quot;);
+serviceVersion.addTextNode(&quot;v1&quot;);
+
+// rest of the header elements
+SOAPElement id = header.addChildElement(&quot;id&quot;, &quot;xrd&quot;);
+id.addTextNode(&quot;ID11234&quot;);
+
+SOAPElement userId = header.addChildElement(&quot;userId&quot;, &quot;xrd&quot;);
+userId.addTextNode(&quot;EE1234567890&quot;);
+
+SOAPElement protocolVersion = header.addChildElement(&quot;protocolVersion&quot;, &quot;xrd&quot;);
+protocolVersion.addTextNode(&quot;4.0&quot;);
+
+// Construct the message payload.
+SOAPElement operation = body.addChildElement(&quot;helloService&quot;, &quot;ns1&quot;, &quot;http://test.x-road.fi/producer&quot;);
+SOAPElement operationName = operation.addChildElement(&quot;request&quot;);
+SOAPElement value = operationName.addChildElement(&quot;name&quot;);
+value.addTextNode(&quot;Test&quot;);
+request.saveChanges();
+
+/** Invoke the service endpoint. **/
+SOAPMessage response = dispatch.invoke(request);
+
+</code></pre>
+
+<h3 id="xrd4j">XRD4J</h3>
+
+<p><a href="https://github.com/petkivim/xrd4j">XRd4J</a> is a Java library for building X-Road v6 Adapter Servers and clients. This example calls helloService on <a href="https://github.com/petkivim/x-road-test-service">X-Road Test Service</a></p>
+
+<pre><code class="java">import com.pkrete.xrd4j.client.SOAPClient;
+import com.pkrete.xrd4j.client.SOAPClientImpl;
+import com.pkrete.xrd4j.client.deserializer.AbstractResponseDeserializer;
+import com.pkrete.xrd4j.client.deserializer.ServiceResponseDeserializer;
+import com.pkrete.xrd4j.client.serializer.AbstractServiceRequestSerializer;
+import com.pkrete.xrd4j.client.serializer.ServiceRequestSerializer;
+import com.pkrete.xrd4j.common.member.ConsumerMember;
+import com.pkrete.xrd4j.common.member.ProducerMember;
+import com.pkrete.xrd4j.common.message.ServiceRequest;
+import com.pkrete.xrd4j.common.message.ServiceResponse;
+import com.pkrete.xrd4j.common.util.MessageHelper;
+import com.pkrete.xrd4j.common.util.SOAPHelper;
+
+import javax.xml.soap.*;
+...
+...
+String url = &quot;http://localhost:8080/example-adapter-0.0.4-SNAPSHOT/Endpoint&quot;;
+
+// Consumer that is calling a service
+ConsumerMember consumer = new ConsumerMember(&quot;FI_TEST&quot;, &quot;GOV&quot;, &quot;1234567-8&quot;, &quot;TestSystem&quot;);
+
+// Producer providing the service
+ProducerMember producer = new ProducerMember(&quot;FI_TEST&quot;, &quot;GOV&quot;, &quot;9876543-1&quot;, &quot;DemoService&quot;, &quot;helloService&quot;, &quot;v1&quot;);
+producer.setNamespacePrefix(&quot;ts&quot;);
+producer.setNamespaceUrl(&quot;http://test.x-road.fi/producer&quot;);
+
+// Create a new ServiceRequest object, unique message id is generated by MessageHelper.
+// Type of the ServiceRequest is the type of the request data (String in this case)
+ServiceRequest&lt;String&gt; request = new ServiceRequest&lt;String&gt;(consumer, producer, MessageHelper.generateId());
+
+// Set username
+request.setUserId(&quot;jdoe&quot;);
+
+// Set request data
+request.setRequestData(&quot;Test message&quot;);
+
+// Application specific class that serializes request data
+ServiceRequestSerializer serializer = new HelloServiceRequestSerializer();
+
+// Application specific class that deserializes response data
+ServiceResponseDeserializer deserializer = new HelloServiceResponseDeserializer();
+
+// Create a new SOAP client
+SOAPClient client = new SOAPClientImpl();
+
+// Send the ServiceRequest, result is returned as ServiceResponse object
+ServiceResponse&lt;String, String&gt; serviceResponse = client.send(request, url, serializer, deserializer);
+
+// Print out the SOAP message received as response
+System.out.println(SOAPHelper.toString(serviceResponse.getSoapMessage()));
+
+// Print out only response data. In this case response data is a String.
+System.out.println(serviceResponse.getResponseData());
+
+}
+
+public class HelloServiceRequestSerializer extends AbstractServiceRequestSerializer {
+
+  @Override
+  protected void serializeRequest(ServiceRequest request, SOAPElement soapRequest, SOAPEnvelope envelope) throws SOAPException {
+      SOAPElement data = soapRequest.addChildElement(envelope.createName(&quot;name&quot;));
+      data.addTextNode((String) request.getRequestData());
+  }
+}
+
+public class HelloServiceResponseDeserializer extends AbstractResponseDeserializer&lt;String, String&gt; {
+  @Override
+  protected String deserializeRequestData(Node requestNode) throws SOAPException {
+      for (int i = 0; i &lt; requestNode.getChildNodes().getLength(); i++) {
+          if (requestNode.getChildNodes().item(i).getLocalName().equals(&quot;name&quot;)) {
+              return requestNode.getChildNodes().item(i).getTextContent();
+          }
+      }
+      return null;
+    }
+
+  @Override
+  protected String deserializeResponseData(Node responseNode, SOAPMessage message) throws SOAPException {
+      for (int i = 0; i &lt; responseNode.getChildNodes().getLength(); i++) {
+          if (responseNode.getChildNodes().item(i).getLocalName().equals(&quot;message&quot;)) {
+              return responseNode.getChildNodes().item(i).getTextContent();
+          }
+      }
+      return null;
+  }
+}
+
+
+</code></pre>
+
+<h2 id="javascript">Javascript</h2>
+
+<h3 id="using-node-soap">Using node-soap</h3>
+
+<p><a href="https://github.com/vpulim/node-soap">SOAP client for node.js</a> is the module being used in this example.</p>
+
+<pre><code class="javascript">var soap = require(&#39;soap&#39;);
+var url = &#39;http://localhost:8080/example-adapter-0.0.4-SNAPSHOT/Endpoint?wsdl&#39;;
+var args = {};
+soap.createClient(url, function(err, client) {
+
+  client.addSoapHeader({
+    &quot;xrd:client&quot;: {
+      &quot;namespace&quot;: &quot;xmlns:tns&quot;,
+      xRoadInstance: &#39;FI_TEST&#39;,
+      memberClass: &#39;GOV&#39;,
+      memberCode: &#39;1234567-8&#39;,
+      subsystemCode: &#39;TestClient&#39;,
+      attributes: {
+        &quot;id:objectType&quot;: &#39;SUBSYSTEM&#39;
+      }
+    },
+    &quot;xrd:service&quot;: {
+      xRoadInstance: &#39;FI_TEST&#39;,
+      memberClass: &#39;GOV&#39;,
+      memberCode: &#39;9876543-1&#39;,
+      subsystemCode: &#39;DemoService&#39;,
+      serviceCode: &#39;getRandom&#39;,
+      serviceVersion: &#39;v1&#39;,
+      attributes: {
+        &quot;id:objectType&quot;: &#39;SERVICE&#39;
+      }
+    },
+    &quot;xrd:id&quot;: &#39;ID11234&#39;,
+    &quot;xrd:userId&quot;: &#39;EE1234567890&#39;,
+    &quot;xrd:protocolVersion&quot;: &#39;4.0&#39;
+    },
+    null, null, null
+  );
+  client.getRandom(args, function(err, result) {
+    console.log(result);
+  });
+});
+</code></pre>
+
+<h2 id="documents-and-links">Documents and links</h2>
+
+<ul>
+<li><a href="http://esuomi.fi/?mdocs-file=2268&amp;mdocs-url=false">X-Road protocol for adapter server
+messaging v4.0</a></li>
+<li><a href="http://esuomi.fi/palveluntarjoajille/palveluvayla/tekninen-aineisto/x-road-tiedonsiirtoprotokolla-2/">X-Road-tiedonsiirtoprotokolla</a></li>
+</ul>
 
         </div>
       </div>
