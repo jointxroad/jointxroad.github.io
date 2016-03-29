@@ -70,6 +70,36 @@
 
 <h2 id="java">JAVA</h2>
 
+<h3 id="wsdl2java">wsdl2java</h3>
+
+<p>Apache CXF can generate SOAP header classes, when using <a href="http://cxf.apache.org/docs/wsdl-to-java.html">exsh</a> parameter. Below is an example how to use these header classes and call getRandom method on testservice.</p>
+
+<pre><code class="java">XRoadClientIdentifierType clientHeaderValues = new XRoadClientIdentifierType();
+clientHeaderValues.setObjectType(XRoadObjectType.fromValue(&quot;SUBSYSTEM&quot;));
+clientHeaderValues.setXRoadInstance(&quot;FI_TEST&quot;);
+clientHeaderValues.setMemberClass(&quot;GOV&quot;);
+clientHeaderValues.setMemberCode(&quot;1234567-8&quot;);
+clientHeaderValues.setSubsystemCode(&quot;TestClient&quot;);
+Holder&lt;XRoadClientIdentifierType&gt; clientHeader = new Holder&lt;XRoadClientIdentifierType&gt;(clientHeaderValues);
+
+XRoadServiceIdentifierType serviceHeaderValues = new XRoadServiceIdentifierType();
+serviceHeaderValues.setObjectType(XRoadObjectType.fromValue(&quot;SERVICE&quot;));
+serviceHeaderValues.setXRoadInstance(&quot;FI_TEST&quot;);
+serviceHeaderValues.setMemberClass(&quot;GOV&quot;);
+serviceHeaderValues.setMemberCode(&quot;9876543-1&quot;);
+serviceHeaderValues.setSubsystemCode(&quot;DemoService&quot;);
+serviceHeaderValues.setServiceCode(&quot;getRandom&quot;);
+serviceHeaderValues.setServiceVersion(&quot;v1&quot;);
+Holder&lt;XRoadServiceIdentifierType&gt; serviceHeader = new Holder&lt;XRoadServiceIdentifierType&gt;(serviceHeaderValues);
+
+Holder&lt;String&gt; userIdHeader = new Holder&lt;String&gt;(&quot;122111&quot;);
+Holder&lt;String&gt; idHeader = new Holder&lt;String&gt;(&quot;1&quot;);
+Holder&lt;String&gt; protocolVersionHeader = new Holder&lt;String&gt;(&quot;4.0&quot;);
+
+GetRandomResponse response = port.getRandom(getRandomMethod, clientHeader, serviceHeader, userIdHeader, idHeader, null, protocolVersionHeader);
+
+</code></pre>
+
 <h3 id="jax-ws">JAX-WS</h3>
 
 <p>In this example we call <a href="https://github.com/petkivim/x-road-test-service">X-Road Test Service</a> using JAX-WS dynamic invocation.</p>
