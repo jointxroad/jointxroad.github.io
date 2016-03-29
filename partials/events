@@ -6,10 +6,34 @@
       <p>Kansallinen palveluarkkitehtuuri (KaPA): Tukea palveluarkkitehtuurin käyttöönottoa nopeuttaviin toimenpiteisiin</p><img src="http://vm.fi/documents/10623/438156/logo_kapa_350x130px/afd91b15-9564-47d7-a17b-fd99d6dfe0ae" />
     </div>
   </div>
+  <div onclick="document.location.href=&quot;https://esuomi.fi/liityntapalvelimen-asennukseen-koulutusta-kevaalla-2016/&quot;" class="card">
+    <div class="card-header"><b>21.04.2016</b><small>Espoo, Finland</small></div>
+    <div class="card-content">
+      <p>Security server installation training session</p><img src="http://vm.fi/documents/10623/438156/logo_kapa_350x130px/afd91b15-9564-47d7-a17b-fd99d6dfe0ae" />
+    </div>
+  </div>
   <div onclick="document.location.href=&quot;http://www.kevathumaus.fi&quot;" class="card">
     <div class="card-header"><b>26.04.2016</b><small>Helsinki, Finland</small></div>
     <div class="card-content">
       <p>Keväthumaus – Spring Splash</p><img src="http://custom.cvent.com/B1233516826A48E8AA75D221005625AD/pix/70d44bb746fb414794692e440fea959e.jpg" />
+    </div>
+  </div>
+  <div onclick="document.location.href=&quot;https://esuomi.fi/liityntapalvelimen-asennukseen-koulutusta-kevaalla-2016/&quot;" class="card">
+    <div class="card-header"><b>13.05.2016</b><small>Espoo, Finland</small></div>
+    <div class="card-content">
+      <p>Security server installation training session</p><img src="http://vm.fi/documents/10623/438156/logo_kapa_350x130px/afd91b15-9564-47d7-a17b-fd99d6dfe0ae" />
+    </div>
+  </div>
+  <div onclick="document.location.href=&quot;http://nordic.apidays.io/&quot;" class="card">
+    <div class="card-header"><b>18.05.2016</b><small>Tampere, Finland</small></div>
+    <div class="card-content">
+      <p>API Days Nordic Conference 2016</p><img src="https://apidaysnordic.github.io/images/logo.png" />
+    </div>
+  </div>
+  <div onclick="document.location.href=&quot;http://nordic.apidays.io/&quot;" class="card">
+    <div class="card-header"><b>19.05.2016</b><small>Tampere, Finland</small></div>
+    <div class="card-content">
+      <p>API Days Nordic Conference 2016</p><img src="https://apidaysnordic.github.io/images/logo.png" />
     </div>
   </div>
 </div>
