@@ -55,7 +55,7 @@
         <aside class="column">
           <ul class="read-more">
             <li><a href="#general">1. General</a></li>
-            <li><a href="#java">2. Pabui</a></li>
+            <li><a href="#java">2. Java</a></li>
             <li><a href="#javascript">3. Javascript</a></li>
           </ul>
         </aside>
@@ -69,6 +69,65 @@
 <p>To get quickly started with development/testing you don&#39;t need to have full security server installation. Instead you can just run <a href="https://github.com/petkivim/x-road-test-service">X-Road Test Service</a> locally and try your client code against it.</p>
 
 <h2 id="java">JAVA</h2>
+
+<h3 id="wsimport">wsimport</h3>
+
+<p>You need to manually insert SOAP headers into your client code. Below is an example how to use these headers and call getRandom method on testservice (using generated classes)</p>
+
+<pre><code class="java">TestService service = new TestService();
+TestServicePortType port = service.getTestServicePort();
+WSBindingProvider bp = (WSBindingProvider) port;
+
+SOAPFactory factory = SOAPFactory.newInstance();
+
+SOAPElement clientHeader = factory.createElement(new QName(&quot;http://x-road.eu/xsd/xroad.xsd&quot;, &quot;client&quot;));
+clientHeader.addNamespaceDeclaration(&quot;id&quot;, &quot;http://x-road.eu/xsd/identifiers&quot;);
+clientHeader.addAttribute(new QName(&quot;&quot;, &quot;objectType&quot;, &quot;id&quot;), &quot;SUBSYSTEM&quot;);
+
+SOAPElement sdsbInstance = clientHeader.addChildElement(&quot;xRoadInstance&quot;, &quot;id&quot;);
+sdsbInstance.addTextNode(&quot;FI_TEST&quot;);
+
+SOAPElement memberClass = clientHeader.addChildElement(&quot;memberClass&quot;, &quot;id&quot;);
+memberClass.addTextNode(&quot;GOV&quot;);
+
+SOAPElement memberCode = clientHeader.addChildElement(&quot;memberCode&quot;, &quot;id&quot;);
+memberCode.addTextNode(&quot;1234567-8&quot;);
+
+SOAPElement subsystem = clientHeader.addChildElement(&quot;subsystemCode&quot;, &quot;id&quot;);
+subsystem.addTextNode(&quot;TestClient&quot;);
+
+// Service soap header
+SOAPElement serviceHeader = factory.createElement(new QName(&quot;http://x-road.eu/xsd/xroad.xsd&quot;, &quot;service&quot;));
+serviceHeader.addNamespaceDeclaration(&quot;id&quot;, &quot;http://x-road.eu/xsd/identifiers&quot;);
+
+serviceHeader.addAttribute(new QName(&quot;&quot;, &quot;objectType&quot;, &quot;id&quot;), &quot;SERVICE&quot;);
+
+sdsbInstance = serviceHeader.addChildElement(&quot;xRoadInstance&quot;, &quot;id&quot;);
+sdsbInstance.addTextNode(&quot;FI_TEST&quot;);
+
+memberClass = serviceHeader.addChildElement(&quot;memberClass&quot;, &quot;id&quot;);
+memberClass.addTextNode(&quot;GOV&quot;);
+
+memberCode = serviceHeader.addChildElement(&quot;memberCode&quot;, &quot;id&quot;);
+memberCode.addTextNode(&quot;1234567-8&quot;);
+
+subsystem = serviceHeader.addChildElement(&quot;subsystemCode&quot;, &quot;id&quot;);
+subsystem.addTextNode(&quot;DemoService&quot;);
+
+SOAPElement serviceCode = serviceHeader.addChildElement(&quot;serviceCode&quot;, &quot;id&quot;);
+serviceCode.addTextNode(&quot;getRandom&quot;);
+
+SOAPElement serviceVersion = serviceHeader.addChildElement(&quot;serviceVersion&quot;, &quot;id&quot;);
+serviceVersion.addTextNode(&quot;v1&quot;);
+
+bp.setOutboundHeaders(
+  Headers.create(clientHeader),
+  Headers.create(serviceHeader),
+  Headers.create(new QName(&quot;http://x-road.eu/xsd/xroad.xsd&quot;, &quot;id&quot;), &quot;ID11234&quot;),
+  Headers.create(new QName(&quot;http://x-road.eu/xsd/xroad.xsd&quot;, &quot;userId&quot;), &quot;EE1234567890&quot;),
+  Headers.create(new QName(&quot;http://x-road.eu/xsd/xroad.xsd&quot;, &quot;protocolVersion&quot;), &quot;4.0&quot;)
+);
+</code></pre>
 
 <h3 id="wsdl2java">wsdl2java</h3>
 
@@ -97,7 +156,6 @@ Holder&lt;String&gt; idHeader = new Holder&lt;String&gt;(&quot;1&quot;);
 Holder&lt;String&gt; protocolVersionHeader = new Holder&lt;String&gt;(&quot;4.0&quot;);
 
 GetRandomResponse response = port.getRandom(getRandomMethod, clientHeader, serviceHeader, userIdHeader, idHeader, null, protocolVersionHeader);
-
 </code></pre>
 
 <h3 id="jax-ws">JAX-WS</h3>
