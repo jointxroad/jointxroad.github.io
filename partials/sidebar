@@ -5,7 +5,7 @@
       <p>Community focus</p><img src="/images/Joint%20X-Road%20Community.png" />
     </div>
   </div>
-  <div onclick="document.location.href = &quot;&quot;" class="card">
+  <div onclick="document.location.href = &quot;http://xteeseminar2016.publicon.ee/en/&quot;" class="card">
     <div class="card-header"><b>Helsinki, Finland</b><small>08.04.2016</small></div>
     <div class="card-content">
       <p>Kansallinen palveluarkkitehtuuri (KaPA): Tukea palveluarkkitehtuurin käyttöönottoa nopeuttaviin toimenpiteisiin</p><img src="http://vm.fi/documents/10623/438156/logo_kapa_350x130px/afd91b15-9564-47d7-a17b-fd99d6dfe0ae" />
